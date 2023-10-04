@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import NProgress from 'nprogress';
 import EventList from '../views/EventList.vue';
 import EventLayout from '../views/event/Layout.vue';
 import EventDetails from '../views/event/Details.vue';
@@ -7,6 +8,8 @@ import EventEdit from '../views/event/Edit.vue';
 import About from '../views/About.vue';
 import NotFound from '../views/NotFound.vue';
 import NetworkError from '../views/NetworkError.vue';
+import EventService from '@/services/EventService';
+import GStore from '@/stores';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -15,8 +18,22 @@ const router = createRouter({
       path: '/',
       name: 'EventList',
       component: EventList,
+      beforeEnter: to => {
+        //  Screwy. Needs more work here to get the pages happening again
+        return EventService.getEvents(
+            parseInt(to.query.perPage) || 4,
+            parseInt(to.query.page) || 1
+        )
+        .then(response => {
+          GStore.events = response.data;
+          GStore.totalEvents = parseInt(response.headers['x-total-count']);
+        })
+        .catch(() => {
+          return ({ name: 'NetworkError'});
+        });
+      },
       props: route => ({
-        perPage: parseInt(route.query.perPage) || 2,
+        perPage: parseInt(route.query.perPage) || 4,
         page: parseInt(route.query.page) || 1    
       })
     },
@@ -25,6 +42,23 @@ const router = createRouter({
       name: 'EventLayout',
       props: true,
       component: EventLayout,
+      beforeEnter: to => {
+        return EventService.getEvent(to.params.id)
+          .then(response => {
+            GStore.event = response.data;
+          })
+          .catch(error => {
+            if(error.response && error.response.status === 404) {
+                return ({
+                    name: '404Resource',
+                    params: { resource: 'event' }
+                });
+            } else {
+                return ({ name: 'NetworkError'});
+            }
+          
+          });
+      },
       children: [
         {
           path: '',
@@ -103,5 +137,13 @@ const router = createRouter({
     }
   ]
 })
+
+router.beforeEach(() => {
+  NProgress.start();
+});
+
+router.afterEach(() => {
+  NProgress.done();
+});
 
 export default router;

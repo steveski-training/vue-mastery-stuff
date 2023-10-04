@@ -1,9 +1,7 @@
 <script setup>
-import { ref, computed, onMounted, watchEffect } from 'vue';
-import { useRouter } from 'vue-router';
-import EventService from '@/services/EventService';
+import { computed } from 'vue';
 import EventCard from '@/components/EventCard.vue';
-import NProgress from 'nprogress';
+import GStore from '@/stores';
 
 const props = defineProps({
   perPage: {
@@ -16,29 +14,8 @@ const props = defineProps({
   },
 });
 
-const router = useRouter();
-const events = ref(null);
-const totalEvents = ref(0);
-
-onMounted(() => {
-  watchEffect(async () => {
-    NProgress.start();
-    try {
-      const response = await EventService.getEvents(props.perPage, props.page);
-      events.value = response.data;
-      totalEvents.value = parseInt(response.headers['x-total-count']);
-    } catch {
-      router.push({ name: 'NetworkError'});
-    }
-    finally {
-      NProgress.done();
-    }
-  });
-
-});
-
 const totalPages = computed(() => {
-  const total = Math.ceil(totalEvents.value / 2);
+  const total = Math.ceil(GStore.totalEvents / 2);
   if(total === undefined || total !== null)
     return 0;
 
@@ -46,7 +23,7 @@ const totalPages = computed(() => {
 });
 
 const hasNextPage = computed(() => {
-  let totalPages = Math.ceil(totalEvents.value / 2);
+  let totalPages = Math.ceil(GStore.totalEvents / 2);
   return props.page < totalPages;
 });
 
@@ -86,7 +63,7 @@ const hasNextPage = computed(() => {
 <template>
   <h1>Events For Good</h1>
   <div class="events">
-    <event-card v-for="event in events" :key="event.id" :event="event" />
+    <event-card v-for="event in GStore.events" :key="event.id" :event="event" />
 
     <div class="pagination">
       <router-link
