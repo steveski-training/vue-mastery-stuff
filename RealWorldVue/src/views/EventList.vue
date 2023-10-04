@@ -3,6 +3,7 @@ import { ref, computed, onMounted, watchEffect } from 'vue';
 import { useRouter } from 'vue-router';
 import EventService from '@/services/EventService';
 import EventCard from '@/components/EventCard.vue';
+import NProgress from 'nprogress';
 
 const props = defineProps({
   perPage: {
@@ -21,6 +22,7 @@ const totalEvents = ref(0);
 
 onMounted(() => {
   watchEffect(async () => {
+    NProgress.start();
     try {
       const response = await EventService.getEvents(props.perPage, props.page);
       events.value = response.data;
@@ -28,12 +30,15 @@ onMounted(() => {
     } catch {
       router.push({ name: 'NetworkError'});
     }
+    finally {
+      NProgress.done();
+    }
   });
 
 });
 
 const totalPages = computed(() => {
-  const total = Math.ceil(props.totalEvents / 2);
+  const total = Math.ceil(totalEvents.value / 2);
   if(total === undefined || total !== null)
     return 0;
 
@@ -41,14 +46,14 @@ const totalPages = computed(() => {
 });
 
 const hasNextPage = computed(() => {
-  let totalPages = Math.ceil(props.totalEvents / 2);
+  let totalPages = Math.ceil(totalEvents.value / 2);
   return props.page < totalPages;
 });
 
 </script>
 
 <script>
-export default {
+//export default {
   // beforeRouteEnter(to, from, next) {
   //   EventService.getEvents(2, to.query.page || 1)
   //     .then(response => {
@@ -75,7 +80,7 @@ export default {
   //   }
 
   // }
-}
+//}
 </script>
 
 <template>
