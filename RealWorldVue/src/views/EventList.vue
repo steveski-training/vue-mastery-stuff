@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watchEffect, computed } from 'vue';
+import { ref, computed, onMounted, watchEffect } from 'vue';
 import { useRouter } from 'vue-router';
 import EventService from '@/services/EventService';
 import EventCard from '@/components/EventCard.vue';
@@ -12,7 +12,7 @@ const props = defineProps({
   page: {
     type: Number,
     required: true
-  }
+  },
 });
 
 const router = useRouter();
@@ -33,7 +33,7 @@ onMounted(() => {
 });
 
 const totalPages = computed(() => {
-  const total = Math.ceil(totalEvents.value / 2);
+  const total = Math.ceil(props.totalEvents / 2);
   if(total === undefined || total !== null)
     return 0;
 
@@ -41,10 +41,41 @@ const totalPages = computed(() => {
 });
 
 const hasNextPage = computed(() => {
-  let totalPages = Math.ceil(totalEvents.value / 2);
+  let totalPages = Math.ceil(props.totalEvents / 2);
   return props.page < totalPages;
 });
 
+</script>
+
+<script>
+export default {
+  // beforeRouteEnter(to, from, next) {
+  //   EventService.getEvents(2, to.query.page || 1)
+  //     .then(response => {
+  //       next(comp => {
+  //         comp.$props.events = response.data;
+  //         comp.$props.totalEvents = parseInt(response.headers['x-total-count']);
+  //       })
+  //     })
+  //     .catch(() => {
+  //       next({ name: 'NetworkError'});
+  //     });
+  // }
+
+  // async beforeRouteEnter(to, from, next) {
+  //   try {
+  //     const response = await EventService.getEvents(2, to.query.page || 1);
+  //     next(comp => {
+  //       comp.$props.events = response.data;
+  //       comp.$props.totalEvents = parseInt(response.headers['x-total-count']);
+  //     })
+      
+  //   } catch {
+  //     next({ name: 'NetworkError'});
+  //   }
+
+  // }
+}
 </script>
 
 <template>
