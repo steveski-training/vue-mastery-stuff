@@ -5,14 +5,23 @@ import EventLayout from '../views/event/Layout.vue';
 import EventDetails from '../views/event/Details.vue';
 import EventRegister from '../views/event/Register.vue';
 import EventEdit from '../views/event/Edit.vue';
-import About from '../views/About.vue';
 import NotFound from '../views/NotFound.vue';
 import NetworkError from '../views/NetworkError.vue';
 import EventService from '@/services/EventService';
 import GStore from '@/stores';
 
+// Lazy loaded components
+const About = () => import(/* webpackChunkName: "about" */ '../views/About.vue');
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
+  scrollBehavior(to, from, savedPosition) {
+    if(savedPosition) {
+      return savedPosition;
+    } else {
+      return { top: 0 };
+    }
+  },
   routes: [
     {
       path: '/',
@@ -73,7 +82,8 @@ const router = createRouter({
         {
           path: 'edit',
           name: 'EventEdit',
-          component: EventEdit
+          component: EventEdit,
+          meta: { requireAuth: true }
         }
       ]
     },
@@ -138,8 +148,23 @@ const router = createRouter({
   ]
 })
 
-router.beforeEach(() => {
+router.beforeEach((to, from) => {
   NProgress.start();
+
+  const notAuthorised = true;
+  if(to.meta.requireAuth && notAuthorised) {
+    GStore.flashMessage = 'Sorry, you are not authroised to view this page';
+
+    setTimeout(() => {
+      GStore.flashMessage = '';
+    }, 3000);
+
+    if(from.href) {
+      return false;
+    } else {
+      return { path: '/' };
+    }
+  }
 });
 
 router.afterEach(() => {
