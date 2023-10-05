@@ -1,7 +1,10 @@
-<script setup>
+<script lang="ts" setup>
+import { PropType } from 'vue';
+import { EventItem } from '@/types';
+
 defineProps({
   event: {
-    type: Object,
+    type: Object as PropType<EventItem>,
     required: true
   }
 });

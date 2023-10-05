@@ -1,4 +1,4 @@
-<script setup>
+<script lang="ts" setup>
 import { computed } from 'vue';
 import EventCard from '@/components/EventCard.vue';
 import GStore from '@/stores';
@@ -27,37 +27,6 @@ const hasNextPage = computed(() => {
   return props.page < totalPages;
 });
 
-</script>
-
-<script>
-//export default {
-  // beforeRouteEnter(to, from, next) {
-  //   EventService.getEvents(2, to.query.page || 1)
-  //     .then(response => {
-  //       next(comp => {
-  //         comp.$props.events = response.data;
-  //         comp.$props.totalEvents = parseInt(response.headers['x-total-count']);
-  //       })
-  //     })
-  //     .catch(() => {
-  //       next({ name: 'NetworkError'});
-  //     });
-  // }
-
-  // async beforeRouteEnter(to, from, next) {
-  //   try {
-  //     const response = await EventService.getEvents(2, to.query.page || 1);
-  //     next(comp => {
-  //       comp.$props.events = response.data;
-  //       comp.$props.totalEvents = parseInt(response.headers['x-total-count']);
-  //     })
-      
-  //   } catch {
-  //     next({ name: 'NetworkError'});
-  //   }
-
-  // }
-//}
 </script>
 
 <template>

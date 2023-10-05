@@ -12,6 +12,7 @@ import GStore from '@/stores';
 
 // Lazy loaded components
 const About = () => import(/* webpackChunkName: "about" */ '../views/About.vue');
+const Todo = () => import(/* webpackChunkName: "todo" */ '../views/Todo.vue');
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -124,6 +125,11 @@ const router = createRouter({
     {
       path: '/about',
       redirect: { name: 'About' }
+    },
+    {
+      path: '/todo',
+      name: 'Todo',
+      component: Todo,
     },
     {
       path: '/:catchAll(.*)', // or ...
